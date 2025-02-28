@@ -1,6 +1,6 @@
 from tkinter import Tk, Label, Entry, Button
 from tkinter.ttk import Notebook, Frame, Treeview
-from controller.user_controller import UserController
+from controller import user_controller, product_controller
 
 class Dashboard(Tk):
     def __init__(self):
@@ -21,6 +21,9 @@ class Dashboard(Tk):
         
         self.user_tab() 
         self.read_users()
+        
+        self.product_tab()
+        self.read_products()
         
     def user_tab(self):
         tab1 = Frame(self.notebook)
@@ -54,6 +57,39 @@ class Dashboard(Tk):
         self.treeview.heading("#1", text="Nombre")
         self.treeview.heading("#2", text="Apellidos")
         self.treeview.heading("#3", text="Usuario")
+
+    def product_tab(self):
+        tab1 = Frame(self.notebook)
+        self.notebook.add(tab1, text = "Productos")
+        
+        head_frame = Frame(tab1)
+        head_frame.pack(fill="x", expand=True, pady=10, padx=10)
+        
+        self.label_creator(head_frame, "Nombre", 0, 0)
+        self.name_entry = self.entry_creator(head_frame, 1, 0)
+        
+        self.label_creator(head_frame, "Descripción", 0, 1)
+        self.descripcion_entry = self.entry_creator(head_frame, 1, 1)
+        
+        self.label_creator(head_frame, "Precio", 0, 2)
+        self.price_entry = self.entry_creator(head_frame, 1, 2)
+        
+        self.label_creator(head_frame, "Stock", 0, 3)
+        self.stock_entry = self.entry_creator(head_frame, 1, 3)
+        
+        save_button = Button(head_frame, text="Guardar", command=self.create_product)
+        save_button.grid(row=4, columnspan=2, pady=10)
+        
+        body_frame = Frame(tab1)
+        body_frame.pack(fill="x", expand=True, padx=10)
+        
+        self.treeview = Treeview(body_frame, columns=("Nombre", "Descripción", "Precio", "Stock"))
+        self.treeview.pack(fill="x", expand=True)
+        self.treeview.heading("#0", text="ID")
+        self.treeview.heading("#1", text="Nombre")
+        self.treeview.heading("#2", text="Descripción")
+        self.treeview.heading("#3", text="Precio")
+        self.treeview.heading("#4", text="Stock")
     
     def label_creator(self, father, name, column, row):
         Label(father, text=name).grid(column=column, row=row, pady=10, padx=10, sticky="w")
@@ -69,18 +105,35 @@ class Dashboard(Tk):
         return button
     
     def create_user(self):
-        user_controller = UserController()
-        if user_controller.create(self.name_entry.get(), self.lastname_entry.get(), self.username_entry.get(), self.password_entry.get()):
+        controller = user_controller.UserController()
+        if controller.create(self.name_entry.get(), self.descripcion_entry.get(), self.price_entry.get(), self.password_entry.get()):
             self.name_entry.delete(0, "end")
-            self.lastname_entry.delete(0, "end")
-            self.username_entry.delete(0, "end")
+            self.descripcion_entry.delete(0, "end")
+            self.price_entry.delete(0, "end")
             self.password_entry.delete(0, "end")
             self.read_users()
+
+    def create_product(self):
+        controller = product_controller.ProductController()
+        if controller.create(self.name_entry.get(), self.descripcion_entry.get(), self.price_entry.get(), self.stock_entry.get()):
+            self.name_entry.delete(0, "end")
+            self.descripcion_entry.delete(0, "end")
+            self.price_entry.delete(0, "end")
+            self.stock_entry.delete(0, "end")
+            self.read_products()
         
     def read_users(self):
-        user_controller = UserController()
+        controller = user_controller.UserController()
         for registro in self.treeview.get_children():
             self.treeview.delete(registro)
         
-        for registro in user_controller.read():
+        for registro in controller.read():
+            self.treeview.insert("", "end", text=registro[0], values=registro[1:])
+    
+    def read_products(self):
+        controller = product_controller.ProductController()
+        for registro in self.treeview.get_children():
+            self.treeview.delete(registro)
+        
+        for registro in controller.read():
             self.treeview.insert("", "end", text=registro[0], values=registro[1:])
