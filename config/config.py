@@ -28,6 +28,19 @@ class DataBase():
                 price REAL NOT NULL,
                 stock INTEGER NOT NULL
             )""")
+        
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS sales (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user INTEGER NOT NULL,
+                product INTEGER NOT NULL,
+                quantity INTEGER NOT NULL,
+                date TEXT NOT NULL,
+                
+                FOREIGN KEY(user) REFERENCES users(id),
+                FOREIGN KEY(product) REFERENCES products(id)
+            )""")
+        
         self.connection.commit()
         
     def default_user(self):

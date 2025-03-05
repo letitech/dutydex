@@ -17,3 +17,25 @@ class ProductController():
             
     def read(self):
         return self.product.read()
+    
+    def read_by_id(self, id):
+        if id:
+            product = self.product.read_by_id(id)
+            if len(product) == 0:
+                messagebox.showwarning("Error", "Producto no encontrado")
+            else:
+                return self.product.read_by_id(id)
+        else:
+            messagebox.showerror("Compos vacíos", "Por favor, rellene todos los campos")
+            
+    def add_to_cart(self, id, quantity):
+        if id and quantity:
+            product = self.product.read_by_id(id)
+            if len(product) == 0:
+                messagebox.showwarning("Error", "Producto no encontrado")
+            else:
+                result = self.product.read_by_id(id)
+                details = [result[0][0], result[0][1], result[0][3], quantity, result[0][3] * int(quantity)]
+                return details
+        else:
+            messagebox.showerror("Compos vacíos", "Por favor, rellene todos los campos")

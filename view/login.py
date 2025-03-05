@@ -42,6 +42,8 @@ class Login(Tk):
         login_button = Button(footer_frame, text="Iniciar sesión", command=self.login)
         login_button.pack()
         
+        # self.bind("<Enter>", func=self.login)
+        
     def login(self):
         username = self.username_entry.get()
         password = self.password_entry.get()
