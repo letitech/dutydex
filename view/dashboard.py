@@ -1,23 +1,33 @@
-from tkinter import Tk, Label, Entry, Button
+from tkinter import Tk, Label, Entry, Button, messagebox
 from tkinter.ttk import Notebook, Frame, Treeview
+from datetime import datetime
 from controller import user_controller, product_controller, sale_controller
 
 class Dashboard(Tk):
-    def __init__(self):
+    def __init__(self, login, active_user):
         super().__init__()
         self.title("Dashboard")
-        self.minsize(800, 600)
+        self.minsize(1000, 700)
         
         screen_width = self.winfo_screenwidth()
         screen_height = self.winfo_screenheight()
         
-        x = str(round((screen_width - 800) / 2))
-        y = str(round((screen_height - 600) / 2))
+        x = str(round((screen_width - 1000) / 2))
+        y = str(round((screen_height - 700) / 2))
         
-        self.geometry(f"800x600+{x}+{y}")
+        self.geometry(f"1000x700+{x}+{y}")
+        self.protocol("WM_DELETE_WINDOW", self.logout)
+        
+        self.active_user = active_user
+        self.login = login
         
         self.notebook = Notebook(self)
         self.notebook.pack(fill="both", expand=True)
+        self.foot = Frame(self)
+        self.foot.pack(fill="x", expand=True, padx=10)
+        
+        self.logout_button = Button(self.foot, text="Cerrar sesión", command=self.logout)
+        self.logout_button.pack(side="right")
         
         self.user_tab() 
         self.read_users()
@@ -26,7 +36,8 @@ class Dashboard(Tk):
         self.read_products()
         
         self.sale_tab()
-        
+        self.read_sales()
+
         self.cart = dict()
         
     def user_tab(self):
@@ -70,7 +81,7 @@ class Dashboard(Tk):
         head_frame.pack(fill="x", expand=True, pady=10, padx=10)
         
         self.label_creator(head_frame, "Nombre", 0, 0)
-        self.name_entry = self.entry_creator(head_frame, 1, 0)
+        self.product_name_entry = self.entry_creator(head_frame, 1, 0)
         
         self.label_creator(head_frame, "Descripción", 0, 1)
         self.descripcion_entry = self.entry_creator(head_frame, 1, 1)
@@ -126,10 +137,10 @@ class Dashboard(Tk):
         self.billing_treeview.heading("#4", text="Total parcial")
         
         self.total_label = Label(head_frame_right, text="Total: 0 XAF", font=(14))
-        self.total_label.pack()
+        self.total_label.pack(side="right")
         
-        # save_button = Button(head_frame_right, text="Guardar", command=self.create_product)
-        # save_button.grid(row=4, columnspan=2, pady=10)
+        buy_button = Button(head_frame_right, text="Confirmar", command=self.save_sale)
+        buy_button.pack(pady=5)
         
         body_frame = Frame(tab1)
         body_frame.pack(fill="x", expand=True, padx=10)
@@ -153,12 +164,20 @@ class Dashboard(Tk):
 
     def create_product(self):
         controller = product_controller.ProductController()
-        if controller.create(self.name_entry.get(), self.descripcion_entry.get(), self.price_entry.get(), self.stock_entry.get()):
-            self.name_entry.delete(0, "end")
+        if controller.create(self.product_name_entry.get(), self.descripcion_entry.get(), self.price_entry.get(), self.stock_entry.get()):
+            self.product_name_entry.delete(0, "end")
             self.descripcion_entry.delete(0, "end")
             self.price_entry.delete(0, "end")
             self.stock_entry.delete(0, "end")
             self.read_products()
+
+    def save_sale(self):
+        controller = sale_controller.SaleController()
+        user_controller1 = user_controller.UserController()
+        user = user_controller1.read_by_username(self.active_user)
+        controller.create(user[0][0], self.cart, datetime.today())
+        self.read_sales()   
+        self.read_products()   
         
     def read_users(self):
         controller = user_controller.UserController()
@@ -175,6 +194,14 @@ class Dashboard(Tk):
         
         for registro in controller.read():
             self.product_treeview.insert("", "end", text=registro[0], values=registro[1:])
+
+    def read_sales(self):
+        controller = sale_controller.SaleController()
+        for registro in self.sale_treeview.get_children():
+            self.sale_treeview.delete(registro)
+        
+        for registro in controller.read():
+            self.sale_treeview.insert("", "end", text=registro[0], values=registro[1:])
             
     def add_to_cart(self):
         controller = product_controller.ProductController()
@@ -188,10 +215,17 @@ class Dashboard(Tk):
         for registro in self.billing_treeview.get_children():
             self.billing_treeview.delete(registro)
         
+        total = 0
         for key, value in self.cart.items():
             self.billing_treeview.insert("", "end", text=key, values=value[1:])
-            self.total_label.config(text=f"Total: {int(value[2]) * int(value[3])}")
+            total += int(value[2]) * int(value[3])
+        self.total_label.config(text=f"Total: {total} XAF")
 
+    def logout(self):
+        close = messagebox.askokcancel("Cerrar sesión", "¿Desea cerrar sesión?")
+        if close:
+            self.destroy()
+            self.login.deiconify()
     
     def label_creator(self, father, name, column, row):
         Label(father, text=name).grid(column=column, row=row, pady=10, padx=10, sticky="w")

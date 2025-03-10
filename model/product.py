@@ -30,3 +30,12 @@ class Product():
             return product.fetchall()
         except Exception as error:
             print("Error:", error)
+    
+    def update_stock(self, id, stock):
+        try:
+            connection, cursor = self.database.set_connection()
+            cursor.execute("UPDATE products SET stock = ? WHERE id = ?", (stock, id))
+            connection.commit()
+            return True
+        except Exception as error:
+            print("Error:", error)

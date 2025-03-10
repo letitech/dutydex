@@ -30,3 +30,13 @@ class UserController():
             
     def read(self):
         return self.user.read()
+    
+    def read_by_username(self, username):
+        if username:
+            result = self.user.read_by_username(username)
+            if len(result) == 0:
+                messagebox.showwarning("Error", "Este usuario no existe")
+            else:
+                return result
+        else:
+            messagebox.showerror("Compos vacíos", "Por favor, rellene todos los campos")

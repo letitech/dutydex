@@ -1,15 +1,18 @@
 from tkinter import messagebox
-from model.sale import Sale
+from model import sale, product
 
 class SaleController():
     def __init__(self):
-        self.sale = Sale()
+        self.sale = sale.Sale()
+        self.product = product.Product()
             
     def create(self, user, products, date):
         if user and products and date:
-            for product, quantity in products.items():                
-                if self.sale.create(user, product, quantity, date):
-                    # messagebox.showinfo("Éxito", "Venta registrada exitosamente")
+            for key, value in products.items():
+                if self.sale.create(user, key, int(value[3]), date):
+                    product = self.product.read_by_id(key)
+                    stock = product[0][4] - int(value[3])
+                    self.product.update_stock(key, stock)
                     return True
                 else:
                     # messagebox.showwarning("Error", "No se pudo guardar el registro")
@@ -19,3 +22,6 @@ class SaleController():
             
     def read(self):
         return self.sale.read()
+    
+    def read_by_id(self, id):
+        return self.sale.read_by_id(id)

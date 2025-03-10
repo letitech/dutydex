@@ -51,6 +51,9 @@ class Login(Tk):
         result = user_controller.login(username, password)
         if result:
             self.withdraw()
-            dashboard = Dashboard()
+            dashboard = Dashboard(self, username)
             dashboard.deiconify()
+            
+            self.username_entry.delete(0, "end")
+            self.password_entry.delete(0, "end")
             

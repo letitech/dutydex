@@ -34,8 +34,11 @@ class ProductController():
             if len(product) == 0:
                 messagebox.showwarning("Error", "Producto no encontrado")
             else:
-                result = self.product.read_by_id(id)
-                details = [result[0][0], result[0][1], result[0][3], quantity, result[0][3] * int(quantity)]
-                return details
+                if int(quantity) > product[0][4]:
+                    messagebox.showwarning("Error", "No hay suficiente stock")
+                else:
+                    result = self.product.read_by_id(id)
+                    details = [result[0][0], result[0][1], result[0][3], quantity, result[0][3] * int(quantity)]
+                    return details
         else:
             messagebox.showerror("Compos vacíos", "Por favor, rellene todos los campos")

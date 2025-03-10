@@ -18,7 +18,7 @@ class Sale():
     def read(self):
         try:
             connection, cursor = self.database.set_connection()
-            sales = cursor.execute("SELECT * FROM sales")
+            sales = cursor.execute("SELECT sales.id, users.username, products.name, sales.quantity, sales.date FROM sales, users, products WHERE sales.user = users.id AND sales.product = products.id")
             return sales.fetchall()
         except Exception as error:
             print("Error:", error)
