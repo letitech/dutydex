@@ -13,10 +13,6 @@ class SaleController():
                     product = self.product.read_by_id(key)
                     stock = product[0][4] - int(value[3])
                     self.product.update_stock(key, stock)
-                    return True
-                else:
-                    # messagebox.showwarning("Error", "No se pudo guardar el registro")
-                    return False
         else:
             messagebox.showerror("Compos vacíos", "Por favor, rellene todos los campos")
             

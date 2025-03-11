@@ -172,12 +172,14 @@ class Dashboard(Tk):
             self.read_products()
 
     def save_sale(self):
-        controller = sale_controller.SaleController()
-        user_controller1 = user_controller.UserController()
-        user = user_controller1.read_by_username(self.active_user)
-        controller.create(user[0][0], self.cart, datetime.today())
-        self.read_sales()   
-        self.read_products()   
+        confirm = messagebox.askokcancel("Confirmación", "¿Desea confirmar la venta?")
+        if confirm:
+            controller = sale_controller.SaleController()
+            user_controller1 = user_controller.UserController()
+            user = user_controller1.read_by_username(self.active_user)
+            controller.create(user[0][0], self.cart, datetime.today())
+            self.read_sales()   
+            self.read_products()   
         
     def read_users(self):
         controller = user_controller.UserController()
