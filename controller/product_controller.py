@@ -28,6 +28,16 @@ class ProductController():
         else:
             messagebox.showerror("Compos vacíos", "Por favor, rellene todos los campos")
             
+    def update(self, id, name, description, price, stock):
+        if name and description and price and stock:
+            if self.product.update(id, name, description, price, stock):
+                messagebox.showinfo("Éxito", "Producto actualizado exitosamente")
+                return True
+            else:
+                messagebox.showwarning("Error", "No se pudo actualizar el registro")
+        else:
+            messagebox.showerror("Compos vacíos", "Por favor, rellene todos los campos")
+            
     def add_to_cart(self, id, quantity):
         if id and quantity:
             product = self.product.read_by_id(id)

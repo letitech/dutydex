@@ -45,23 +45,26 @@ class Dashboard(Tk):
         self.notebook.add(tab1, text = "Usuarios")
         
         head_frame = Frame(tab1)
-        head_frame.pack(fill="x", expand=True, pady=10, padx=10)
+        head_frame.pack(fill="x", expand=True, padx=10)
         
-        self.label_creator(head_frame, "Nombre", 0, 0)
-        self.name_entry = self.entry_creator(head_frame, 1, 0)
+        self.id_entry = self.entry_creator(head_frame, 1, 0)
+        self.id_entry.grid_remove()
         
-        self.label_creator(head_frame, "Apellidos", 0, 1)
-        self.lastname_entry = self.entry_creator(head_frame, 1, 1)
+        self.label_creator(head_frame, "Nombre", 0, 1)
+        self.name_entry = self.entry_creator(head_frame, 1, 1)
         
-        self.label_creator(head_frame, "Usuario", 0, 2)
-        self.username_entry = self.entry_creator(head_frame, 1, 2)
+        self.label_creator(head_frame, "Apellidos", 0, 2)
+        self.lastname_entry = self.entry_creator(head_frame, 1, 2)
         
-        self.label_creator(head_frame, "Contraseña", 0, 3)
+        self.label_creator(head_frame, "Usuario", 0, 3)
+        self.username_entry = self.entry_creator(head_frame, 1, 3)
+        
+        self.label_creator(head_frame, "Contraseña", 0, 4)
         self.password_entry = Entry(head_frame, width=35, show="*")
-        self.password_entry.grid(column=1, row=3, pady=10)
+        self.password_entry.grid(column=1, row=4, pady=10)
         
-        save_button = Button(head_frame, text="Guardar", command=self.create_user)
-        save_button.grid(row=4, columnspan=2, pady=10)
+        save_button = Button(head_frame, text="Guardar", command=self.save_user)
+        save_button.grid(row=5, columnspan=2, pady=10)
         
         body_frame = Frame(tab1)
         body_frame.pack(fill="x", expand=True, padx=10)
@@ -72,28 +75,32 @@ class Dashboard(Tk):
         self.user_treeview.heading("#1", text="Nombre")
         self.user_treeview.heading("#2", text="Apellidos")
         self.user_treeview.heading("#3", text="Usuario")
+        self.user_treeview.tag_bind("ttk", "<<TreeviewSelect>>", self.on_user_select)
 
     def product_tab(self):
         tab1 = Frame(self.notebook)
         self.notebook.add(tab1, text = "Productos")
         
         head_frame = Frame(tab1)
-        head_frame.pack(fill="x", expand=True, pady=10, padx=10)
+        head_frame.pack(fill="x", expand=True, padx=10)
         
-        self.label_creator(head_frame, "Nombre", 0, 0)
-        self.product_name_entry = self.entry_creator(head_frame, 1, 0)
+        self.product_id_entry = self.entry_creator(head_frame, 1, 0)
+        self.product_id_entry.grid_remove()
         
-        self.label_creator(head_frame, "Descripción", 0, 1)
-        self.descripcion_entry = self.entry_creator(head_frame, 1, 1)
+        self.label_creator(head_frame, "Nombre", 0, 1)
+        self.product_name_entry = self.entry_creator(head_frame, 1, 1)
         
-        self.label_creator(head_frame, "Precio", 0, 2)
-        self.price_entry = self.entry_creator(head_frame, 1, 2)
+        self.label_creator(head_frame, "Descripción", 0, 2)
+        self.descripcion_entry = self.entry_creator(head_frame, 1, 2)
         
-        self.label_creator(head_frame, "Stock", 0, 3)
-        self.stock_entry = self.entry_creator(head_frame, 1, 3)
+        self.label_creator(head_frame, "Precio", 0, 3)
+        self.price_entry = self.entry_creator(head_frame, 1, 3)
         
-        save_button = Button(head_frame, text="Guardar", command=self.create_product)
-        save_button.grid(row=4, columnspan=2, pady=10)
+        self.label_creator(head_frame, "Stock", 0, 4)
+        self.stock_entry = self.entry_creator(head_frame, 1, 4)
+        
+        save_button = Button(head_frame, text="Guardar", command=self.save_product)
+        save_button.grid(row=5, columnspan=2, pady=10)
         
         body_frame = Frame(tab1)
         body_frame.pack(fill="x", expand=True, padx=10)
@@ -105,6 +112,7 @@ class Dashboard(Tk):
         self.product_treeview.heading("#2", text="Descripción")
         self.product_treeview.heading("#3", text="Precio")
         self.product_treeview.heading("#4", text="Stock")
+        self.product_treeview.tag_bind("ttk", "<<TreeviewSelect>>", self.on_product_select)
         
     def sale_tab(self):
         tab1 = Frame(self.notebook)
@@ -153,33 +161,44 @@ class Dashboard(Tk):
         self.sale_treeview.heading("#3", text="Cantidad")
         self.sale_treeview.heading("#4", text="Fecha")
     
-    def create_user(self):
+    def save_user(self):
         controller = user_controller.UserController()
-        if controller.create(self.name_entry.get(), self.lastname_entry.get(), self.username_entry.get(), self.password_entry.get()):
-            self.name_entry.delete(0, "end")
-            self.lastname_entry.delete(0, "end")
-            self.username_entry.delete(0, "end")
-            self.password_entry.delete(0, "end")
-            self.read_users()
+        if self.id_entry.get():
+            controller.update(self.id_entry.get(), self.name_entry.get(), self.lastname_entry.get(), self.username_entry.get(), self.password_entry.get())   
+        else:
+            controller.create(self.name_entry.get(), self.lastname_entry.get(), self.username_entry.get(), self.password_entry.get())
+        self.id_entry.delete(0, "end")
+        self.name_entry.delete(0, "end")
+        self.lastname_entry.delete(0, "end")
+        self.username_entry.delete(0, "end")
+        self.password_entry.delete(0, "end")
+        self.read_users()
 
-    def create_product(self):
+    def save_product(self):
         controller = product_controller.ProductController()
-        if controller.create(self.product_name_entry.get(), self.descripcion_entry.get(), self.price_entry.get(), self.stock_entry.get()):
-            self.product_name_entry.delete(0, "end")
-            self.descripcion_entry.delete(0, "end")
-            self.price_entry.delete(0, "end")
-            self.stock_entry.delete(0, "end")
-            self.read_products()
+        if self.product_id_entry.get():
+            controller.update(self.product_id_entry.get(), self.product_name_entry.get(), self.descripcion_entry.get(), self.price_entry.get(), self.stock_entry.get())   
+        else:
+            controller.create(self.product_name_entry.get(), self.descripcion_entry.get(), self.price_entry.get(), self.stock_entry.get())
+        self.product_id_entry.delete(0, "end")
+        self.product_name_entry.delete(0, "end")
+        self.descripcion_entry.delete(0, "end")
+        self.price_entry.delete(0, "end")
+        self.stock_entry.delete(0, "end")
+        self.read_products()
 
     def save_sale(self):
-        confirm = messagebox.askokcancel("Confirmación", "¿Desea confirmar la venta?")
-        if confirm:
-            controller = sale_controller.SaleController()
-            user_controller1 = user_controller.UserController()
-            user = user_controller1.read_by_username(self.active_user)
-            controller.create(user[0][0], self.cart, datetime.today())
-            self.read_sales()   
-            self.read_products()   
+        if len(self.cart) == 0:
+            messagebox.showerror("Campos vacíos", "No hay productos seleccionados")
+        else:
+            confirm = messagebox.askokcancel("Confirmación", "¿Desea confirmar la venta?")
+            if confirm:
+                controller = sale_controller.SaleController()
+                user_controller1 = user_controller.UserController()
+                user = user_controller1.read_by_username(self.active_user)
+                controller.create(user[0][0], self.cart, datetime.today())
+                self.read_sales()   
+                self.read_products()   
         
     def read_users(self):
         controller = user_controller.UserController()
@@ -187,7 +206,7 @@ class Dashboard(Tk):
             self.user_treeview.delete(registro)
         
         for registro in controller.read():
-            self.user_treeview.insert("", "end", text=registro[0], values=registro[1:])
+            self.user_treeview.insert("", "end", text=registro[0], values=registro[1:], tags=("ttk",))
     
     def read_products(self):
         controller = product_controller.ProductController()
@@ -195,7 +214,7 @@ class Dashboard(Tk):
             self.product_treeview.delete(registro)
         
         for registro in controller.read():
-            self.product_treeview.insert("", "end", text=registro[0], values=registro[1:])
+            self.product_treeview.insert("", "end", text=registro[0], values=registro[1:], tags=("ttk",))
 
     def read_sales(self):
         controller = sale_controller.SaleController()
@@ -208,21 +227,47 @@ class Dashboard(Tk):
     def add_to_cart(self):
         controller = product_controller.ProductController()
         product = controller.add_to_cart(self.product_entry.get(), self.quantity_entry.get())
-        
         if product:
             self.cart[product[0]] = product
             self.product_entry.delete(0, "end")
             self.quantity_entry.delete(0, "end")
-            
         for registro in self.billing_treeview.get_children():
             self.billing_treeview.delete(registro)
-        
+
         total = 0
         for key, value in self.cart.items():
             self.billing_treeview.insert("", "end", text=key, values=value[1:])
             total += int(value[2]) * int(value[3])
         self.total_label.config(text=f"Total: {total} XAF")
 
+    def on_user_select(self, event):
+        item = self.user_treeview.selection()[0]
+        self.id_entry.delete(0, "end")
+        self.name_entry.delete(0, "end")
+        self.lastname_entry.delete(0, "end")
+        self.username_entry.delete(0, "end")
+        self.password_entry.delete(0, "end")
+
+        self.id_entry.insert(0, self.user_treeview.item(item, "text"))
+        self.name_entry.insert(0, self.user_treeview.item(item, "values")[0])
+        self.lastname_entry.insert(0, self.user_treeview.item(item, "values")[1])
+        self.username_entry.insert(0, self.user_treeview.item(item, "values")[2])
+        self.password_entry.insert(0, self.user_treeview.item(item, "values")[3])
+    
+    def on_product_select(self, event):
+        item = self.product_treeview.selection()[0]
+        self.product_id_entry.delete(0, "end")
+        self.product_name_entry.delete(0, "end")
+        self.descripcion_entry.delete(0, "end")
+        self.price_entry.delete(0, "end")
+        self.stock_entry.delete(0, "end")
+        
+        self.product_id_entry.insert(0, self.product_treeview.item(item, "text"))
+        self.product_name_entry.insert(0, self.product_treeview.item(item, "values")[0])
+        self.descripcion_entry.insert(0, self.product_treeview.item(item, "values")[1])
+        self.price_entry.insert(0, self.product_treeview.item(item, "values")[2])
+        self.stock_entry.insert(0, self.product_treeview.item(item, "values")[3])
+        
     def logout(self):
         close = messagebox.askokcancel("Cerrar sesión", "¿Desea cerrar sesión?")
         if close:

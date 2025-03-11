@@ -40,3 +40,13 @@ class UserController():
                 return result
         else:
             messagebox.showerror("Compos vacíos", "Por favor, rellene todos los campos")
+    
+    def update(self, id, name, lastname, username, password):
+        if name and lastname and username and password:
+            if self.user.update(id, name, lastname, username, password):
+                messagebox.showinfo("Éxito", "Usuario actualizado exitosamente")
+                return True
+            else:
+                messagebox.showwarning("Error", "No se pudo actualizar el registro")
+        else:
+            messagebox.showerror("Compos vacíos", "Por favor, rellene todos los campos")

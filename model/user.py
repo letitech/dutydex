@@ -38,3 +38,13 @@ class User():
             return user.fetchall()
         except Exception as error:
             print("Error:", error)
+            
+    def update(self, id, name, lastname, username, password):
+        try:
+            connection, cursor = self.database.set_connection()
+            cursor.execute("UPDATE users SET name = ?, lastname = ?, username = ?, password = ? WHERE id = ?", 
+                           (name, lastname, username, password, id))
+            connection.commit()
+            return True
+        except Exception as error:
+            print("Error:", error)

@@ -31,6 +31,16 @@ class Product():
         except Exception as error:
             print("Error:", error)
     
+    def update(self, id, name, description, price, stock):
+        try:
+            connection, cursor = self.database.set_connection()
+            cursor.execute("UPDATE products SET name = ?, description = ?, price = ?, stock = ? WHERE id = ?", 
+                           (name, description, price, stock, id))
+            connection.commit()
+            return True
+        except Exception as error:
+            print("Error:", error)
+            
     def update_stock(self, id, stock):
         try:
             connection, cursor = self.database.set_connection()
