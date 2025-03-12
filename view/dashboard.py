@@ -197,6 +197,8 @@ class Dashboard(Tk):
                 user_controller1 = user_controller.UserController()
                 user = user_controller1.read_by_username(self.active_user)
                 controller.create(user[0][0], self.cart, datetime.today())
+                for registro in self.billing_treeview.get_children():
+                    self.billing_treeview.delete(registro)
                 self.read_sales()   
                 self.read_products()   
         
